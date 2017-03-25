@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = "YOUR_API_KEY";
+    private static final String CLOUD_VISION_API_KEY = "__CLOUD__API_KEY";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -201,6 +201,8 @@ public class MainActivity extends AppCompatActivity {
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
+
+
                     VisionRequestInitializer requestInitializer =
                             new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
                                 /**
@@ -245,10 +247,13 @@ public class MainActivity extends AppCompatActivity {
 
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(10);
-                            add(labelDetection);
+//                            Feature labelDetection = new Feature();
+//                            labelDetection.setType("LABEL_DETECTION");
+//                            labelDetection.setMaxResults(10);
+//                            add(labelDetection);
+                            Feature textDetection = new Feature();
+                            textDetection.setType("TEXT_DETECTION");
+                            add(textDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -302,12 +307,9 @@ public class MainActivity extends AppCompatActivity {
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
         String message = "I found these things:\n\n";
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
-        if (labels != null) {
-            for (EntityAnnotation label : labels) {
-                message += String.format(Locale.US, "%.3f: %s", label.getScore(), label.getDescription());
-                message += "\n";
-            }
+        List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+        if (labels != null && !labels.isEmpty()) {
+            message += String.format(Locale.US, "%s", labels.get(0).getDescription());
         } else {
             message += "nothing";
         }
